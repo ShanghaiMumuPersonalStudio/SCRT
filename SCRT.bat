@@ -5,8 +5,9 @@ setlocal enabledelayedexpansion
 chcp 936
 echo 制作者：林先生
 echo 系统清理诊断程序[版本 8.5.2.1 正式版]
-echo 制作者：林先生。制作团队：Shanghai Mumu Personal Studio（上海木木个人工作室）
-echo 本文件已开源，使用GNU通用开源许可证第三版，请访问https://github.com/ShanghaiMumuPersonalStudio/SCRT！
+echo 制作者：林先生。制作团队：Shanghai Mumu Personal Studio（上海木木个人工作室）。保留所有权利。
+echo THIS APPLICATION IS MADE BY SHANGHAI MUMU PERSONAL STUDIO
+echo 本文件已开源，使用GNU通用开源许可证第三版，请访问https://github.com/ShanghaiMumuPersonalStudio/SCRT/！
 echo ECHO:初始化中……
 echo ECHO:设置中……
 echo ECHO:正在设置基础变量……
@@ -17,7 +18,7 @@ set fname=%~n0%
 set type=%~x0
 set date_f=%date:/=%_%time::=%
 set date_f=%date_f:.=%
-set SCRT="%cd%%fname%%type%"
+set SCRT=%cd%%fname%%type%
 for /f "tokens=2* delims=    " %%a in ('reg query "HKLM\SOFTWARE\SCRT" /v "home" 2^>nul') do (
 	set home=%%b
 )
@@ -97,10 +98,11 @@ echo ECHO:自检完成！
 echo.
 echo ECHO:正在设置错误报告变量……
 set auto=F
+set su=F
 if exist "%set%" (
 	type "%set%" | findstr /c:"automode:T" >nul && set auto=T || set auto=F
+	type "%set%" | findstr /c:"startup:T" >nul && set su=T || set su=F
 )
-set su=F
 set sfcs=F
 set mrts=F
 set suserr=F
@@ -161,6 +163,7 @@ if %count% geq 10 (
 )
 echo ECHO:已自动保留最新的九个日志文件
 echo ---------------------------------------------------------------------------------------------------- >"%logs%"
+echo THIS LOG FILE IS CREATED BY SCRT PROGRAM >>"%logs%"
 echo SCRT-runbegintime:%date% %time% >>"%logs%"
 echo SCRT-vision:%v% >>"%logs%"
 echo.
@@ -197,9 +200,9 @@ if %auto% == F (
 cls&&title 系统清理诊断程序[版本 %v%]
 echo -----------------------------------------------------------说明--------------------------------------------------------
 echo 系统清理诊断程序[版本 8.5.2.1 正式版] 
-echo 制作者：林先生。制作团队：Shanghai Mumu Personal Studio（上海木木个人工作室）
-echo 本说明林先生（制作者）保留其所有解释权！
-echo 本说明说明了所有可能存在纠纷或刑事的任何问题！
+echo 制作者：林先生。制作团队：Shanghai Mumu Personal Studio（上海木木个人工作室）。保留所有权利。
+echo 本说明林先生（制作者）保留其所有解释权。
+echo 本说明说明了所有可能存在纠纷或刑事的任何问题。
 echo.
 echo 安全声明：本程序部分操作会被误判为危险操作，可以查看日志文件和弹窗提示检查文件是否有病毒存在！
 echo.
@@ -207,8 +210,8 @@ echo 调用软件：cmd.exe；taskschd.msc；ping.exe；cleanmgr；SFC.exe
 echo 调用软件版权：版权所有 (C) Microsoft Corporation。保留所有权利。
 echo 网络连通性测试网址：www.baidu.com
 echo.
-echo 本软件已开源，请前往https://github.com/ShanghaiMumuPersonalStudio/SCRT！
-echo 如发现bug或植入病毒的情况可将bug信息和logs文件夹下的脚本一起发送至微信SHlin2012！
+echo 本软件已开源，请前往https://github.com/ShanghaiMumuPersonalStudio/SCRT/！
+echo 恶意改版软件报告邮箱：Lin@SHcodelin.top
 echo -----------------------------------------------------------------------------------------------------------------------
 if %auto% == F (
 	TIMEOUT /T 5
@@ -218,7 +221,7 @@ echo set: >>"%logs%"
 color 0A&&mode con COLS=120 LINES=50
 %cls%
 echo 开始运行！
-echo 提示：如需修改任何设置项请前往"%systemdrive%\SCRT\uns.bat"进行重置操作
+echo 提示：如需修改任何设置项请前往%uns%进行重置操作
 echo.
 if not exist "%set%" (
 	set /p ip=您想要改变SCRT的运行文件存放目录吗？（y/n）:
@@ -272,10 +275,27 @@ if not exist "%set%" (
 		echo [%date% %time%]scrt_home:standard >>"%logs%"
 	 ) else (
 		echo 无效输入，请输入y或 n。
-		echo [%date% %time%]auto mode:ERROR >>"%logs%"
+		echo [%date% %time%]scrt_home:ERROR >>"%logs%"
 	)
 	echo [%date% %time%]home_dir set >>"%logs%"
 	echo SCRT-main.set: >"%set%"
+	echo.
+	set /p ip=您想要设置清理目录吗（将配置在配置5）？（y/n）:
+	if "!ip!"=="y" (
+		echo 请您在弹出的新窗口中选中要清理的所有文件！
+		cleanmgr /sageset:5
+		echo 设置成功！
+		echo cleanmgrset:T >> "%set%"
+		echo [%date% %time%]cleanmgr:T >>"%logs%"
+	) else if "!ip!"=="n" (
+		echo 跳过设置过程成功！
+		echo cleanmgrset:F >> "%set%"
+		echo [%date% %time%]cleanmgr:F >>"%logs%"
+	 ) else (
+		echo 无效输入，请输入y或 n。
+		echo [%date% %time%]cleanmgr:ERROR >>"%logs%"
+	)
+	echo [%date% %time%]cleanmgr set >>"%logs%"
 	echo.
 	echo 静默运行说明：当开启静默模式后，所有延时代码将不会运行，并禁用本程序的ping测试
 	echo                           适用于需要自启动或仅需要功能不需要UI的人
@@ -295,27 +315,10 @@ if not exist "%set%" (
 	)
 	echo [%date% %time%]auto mode set >>"%logs%"
 	echo.
-	set /p ip=您想要设置清理目录吗（sage = 5）？（y/n）:
-	if "!ip!"=="y" (
-		echo 请您在弹出的新窗口中选中要清理的所有文件！
-		cleanmgr /sageset:5
-		echo 设置成功！
-		echo cleanmgrset:T >> "%set%"
-		echo [%date% %time%]cleanmgr:T >>"%logs%"
-	) else if "!ip!"=="n" (
-		echo 跳过设置过程成功！
-		echo cleanmgrset:F >> "%set%"
-		echo [%date% %time%]cleanmgr:F >>"%logs%"
-	 ) else (
-		echo 无效输入，请输入y或 n。
-		echo [%date% %time%]cleanmgr:ERROR >>"%logs%"
-	)
-	echo [%date% %time%]cleanmgr set >>"%logs%"
-	echo.
 	set /p ip=您想要让SCRT自启动运行吗？（y/n）:
 	if "!ip!"=="y" (
 		echo ECHO:正在启用自启动……
-		if %auto% == F (
+		if !auto!==F (
 			Schtasks /Create /SC ONLOGON /TN "SCRT" /TR "%SCRT%" /F
 		) else (
 			echo start %SCRT% /min >"%subat%"
@@ -326,22 +329,22 @@ if not exist "%set%" (
 		if !errorlevel! == 1 (
 			set suserr=T
 			echo ERROR:错误！
-			echo [%date% %time%]startup set error >>"%logs%"
+			echo [!date! !time!]startup set error >>"%logs%"
 		) 
 		set su=T
 		echo 打开成功！
 		echo startup:T >> "%set%"
-		echo [%date% %time%]startup:T >>"%logs%"
+		echo [!date! !time!]startup:T >>"%logs%"
 	) else if "!ip!"=="n" (
 		set su=F
 		echo 关闭成功！
 		echo startup:F >> "%set%"
-		echo [%date% %time%]startup:F >>"%logs%"
+		echo [!date! !time!]startup:F >>"%logs%"
 	 ) else (
 		echo 无效输入，请输入y或 n。
-		echo [%date% %time%]startup:ERROR >>"%logs%"
+		echo [!date! !time!]startup:ERROR >>"%logs%"
 	)
-	echo [%date% %time%]startup set >>"%logs%"
+	echo [!date! !time!]startup set >>"%logs%"
 	echo.
 	echo 恢复模式说明:每次运行SCRT时会自动尝试修复被恶意软件修改的
 	echo                系统文件，特别是中病毒或特殊情况导致文件损坏时！
@@ -351,7 +354,7 @@ if not exist "%set%" (
 		set sfcs=T
 		echo 打开成功！
 		echo sfcset:T >> "%set%"
-		echo [%date% %time%]sfc:T >>"%logs%"
+		echo [!date! !time!]sfc:T >>"%logs%"
 		echo.
 		echo 增强模式说明:通过mrt删除您电脑上的可疑文件，
 		echo               来保护您的电脑！如果恢复模式未开
@@ -366,15 +369,15 @@ if not exist "%set%" (
 			set mrts=T
 			echo 打开成功！
 			echo mrtset:T >> "%set%"
-			echo [%date% %time%]mrt:T >>"%logs%"
+			echo [!date! !time!]mrt:T >>"%logs%"
 		) else if "!ip!"=="n" (
 			set mrts=F
 			echo 关闭成功！
 			echo mrtset:F >> "%set%"
-			echo [%date% %time%]mrt:F >>"%logs%"
+			echo [!date! !time!]mrt:F >>"%logs%"
 		) else (
 			echo 无效输入，请输入y或 n。
-			echo [%date% %time%]mrt:ERROR >>"%logs%"
+			echo [!date! !time!]mrt:ERROR >>"%logs%"
 		)
 	) else if "!ip!"=="n" (
 		set sfcs=F
@@ -382,13 +385,13 @@ if not exist "%set%" (
 		echo 关闭成功！
 		echo sfcset:F >> "%set%"
 		echo mrtset:F >> "%set%"
-		echo [%date% %time%]sfc:F >>"%logs%"
-		echo [%date% %time%]mrt:F >>"%logs%"
+		echo [!date! !time!]sfc:F >>"%logs%"
+		echo [!date! !time!]mrt:F >>"%logs%"
 	 ) else (
 		echo 无效输入，请输入y或 n。
-		echo [%date% %time%]sfc:ERROR >>"%logs%"
+		echo [!date! !time!]sfc:ERROR >>"%logs%"
 	)
-	echo [%date% %time%]sfc^&mrt set >>"%logs%"
+	echo [!date! !time!]sfc^&mrt set >>"%logs%"
 	TIMEOUT /T 3
 ) else (
 	echo 自动模式已设置
@@ -397,14 +400,14 @@ if not exist "%set%" (
 	echo.
 	type "%set%" | findstr /c:"startup:T" >nul && set su=T || set su=F
 	echo 自启动已设置
-	echo [%date% %time%]startup set >>"%logs%"
+	echo [!date! !time!]startup set >>"%logs%"
 	echo.
 	type "%set%" | findstr /c:"sfcset:T" >nul && set sfcs=T || set sfcs=F
 	echo 恢复模式已设置
-	echo [%date% %time%]sfc set >>"%logs%"
+	echo [!date! !time!]sfc set >>"%logs%"
 	echo.
 	type "%set%" | findstr /c:"mrtset:T" >nul && set mrts=T || set mrts=F
-	echo [%date% %time%]mrt set >>"%logs%"
+	echo [!date! !time!]mrt set >>"%logs%"
 	echo 增强模式已设置
 )
 echo.
@@ -428,14 +431,14 @@ if %auto% == F (
 	echo.
 	echo 正在测试网络连通性（www.baidu.com）……
 	ping www.baidu.com
-	echo [%date% %time%]ping www.baidu.com completed >>"%logs%"
+	echo [!date! !time!]ping www.baidu.com completed >>"%logs%"
 	echo 网络连通性已测试完成！
 	echo 网络测试已完成！
 	TIMEOUT /T 2
 )
 if !errorlevel! == 1 (
 	set nperr=T
-	echo [%date% %time%]ping error >>"%logs%"
+	echo [!date! !time!]ping error >>"%logs%"
 ) 
 echo. >>"%logs%"
 echo network-ping end >>"%logs%"
@@ -455,10 +458,10 @@ echo powershell -Command "Get-ChildItem 'C:\' -Include '*.old','*.tmp','*.temp' 
 start /min %cleanbat%
 start  /min cmd /q /d /c "del %windir%\KB*.log /f /s /q"
 start  /min cmd /q /d /c "del /f /s /q %windir%\*.bak"
+start  /min cmd /q /d /c  "del %windir%\temp\*.* /s /q /f"
 del "%windir%\Downloaded Program Files\*.*" /s /q /f >nul 2>nul
 del "%windir%\System32\LogFiles\*.*" /s /q /f >nul 2>nul
 del "%windir%\Help\*.*" /s /q /f >nul 2>nul
-start  /min cmd /q /d /c  "del %windir%\temp\*.* /s /q /f"
 del %userprofile%\Cookies\*.* /s /q /f >nul 2>nul
 del %userprofile%\Recent\*.* /s /q /f >nul 2>nul
 del %userprofile%\AppData\Local\Microsoft\Windows\INetCache\IE\*.* /s /q /f >nul 2>nul
@@ -468,6 +471,7 @@ rd /s /q %windir%\SoftwareDistribution\Download\ >nul 2>nul
 md %windir%\SoftwareDistribution\Download\ >nul 2>nul
 rd /s /q %userprofile%\AppData\Local\CrashDumps >nul 2>nul
 md %userprofile%\AppData\Local\CrashDumps >nul 2>nul
+DISM /Online /Cleanup-Image /StartComponentCleanup
 echo. >>"%logs%"
 echo [%date% %time%]files cleaned >>"%logs%"
 echo.
@@ -486,18 +490,18 @@ if %mrts% == T (
 	if !errorlevel! == 1 (
 		set mrterr=T
 		echo ERROR:mrt命令写入失败！
-		echo [%date% %time%]mrt error >>"%logs%"
+		echo [!date! !time!]mrt error >>"%logs%"
 	) 
 )
 echo exit >>"%SFCD%"
 if %sfcs% == T (
 	start /min %SFCD%
-	echo [%date% %time%]sfc ran >>"%logs%"
+	echo [!date! !time!]sfc ran >>"%logs%"
 	echo 请等待sfc.bat自动修复完成
 	if !errorlevel! == 1 (
 		set serr=T
 		echo ERROR:%SFCD%打开失败！
-		echo [%date% %time%]sfc error >>"%logs%"
+		echo [!date! !time!]sfc error >>"%logs%"
 	)
 	echo.
 	if %auto% == F (
@@ -520,7 +524,7 @@ if %mins% lss 0 set /a hours = %hours% - 1 & set /a mins = 60%mins%
 if %hours% lss 0 set /a hours = 24%hours%
 if 1%ms% lss 100 set ms=0%ms%
 set /a totalsecs = %hours%*3600 + %mins%*60 + %secs%
-set runtime=%hours%:%mins%:%secs%.%ms% (%totalsecs%.%ms%s total)
+set runtime=%hours%:%mins%:%secs%.%ms% (共%totalsecs%.%ms%s)
 echo ECHO:计算完成！运行时间:%runtime%！
 echo ECHO:写入日志中……
 echo set: >>"%logs%"
@@ -571,10 +575,9 @@ echo ECHO:正在退出……
 start /min %tc%
 endlocal
 exit
-rem 本文件已经开源，使用GNU通用开源许可证第三版，请访问https://github.com/ShanghaiMumuPersonalStudio/SCRT！
+rem 本文件已经开源，使用GNU通用开源许可证第三版，请访问https://github.com/ShanghaiMumuPersonalStudio/SCRT/！
 rem 本文件开源！
 rem 备用代码信息begin
 rem 制作者：林先生。制作团队：Shanghai Mumu Personal Studio（上海木木工作室）。保留所有权利。
 rem 系统清理诊断程序[版本 8.5.2.1 正式版]
-rem 林先生版权所有
 rem 备用代码信息end
