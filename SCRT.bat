@@ -18,7 +18,7 @@ set fname=%~n0%
 set type=%~x0
 set date_f=%date:/=%_%time::=%
 set date_f=%date_f:.=%
-set SCRT=%cd%%fname%%type%
+set SCRT="%cd%%fname%%type%"
 for /f "tokens=2* delims=    " %%a in ('reg query "HKLM\SOFTWARE\SCRT" /v "home" 2^>nul') do (
 	set home=%%b
 )
@@ -321,7 +321,7 @@ if not exist "%set%" (
 		if !auto!==F (
 			Schtasks /Create /SC ONLOGON /TN "SCRT" /TR "%SCRT%" /F
 		) else (
-			echo start %SCRT% /min >"%subat%"
+			echo start /min "" %SCRT% >"%subat%"
 			echo exit >>"%subat%"
 			Schtasks /Create /SC ONLOGON /TN "SCRT" /TR "%subat%" /F
 		)
