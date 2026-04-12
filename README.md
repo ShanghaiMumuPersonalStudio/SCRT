@@ -1,10 +1,6 @@
 # 📦 SCRT（系统清理和诊断工具）  
 ## 🚀 自制实用批处理程序（单文件版）  
 
-<div align="center">  
-  <img src="icon.ico" alt="SCRT图标" width="80" height="80">  
-</div>  
-
 [![Forks](https://img.shields.io/github/forks/ShanghaiMumuPersonalStudio/SCRT.svg?style=for-the-badge)](https://github.com/ShanghaiMumuPersonalStudio/SCRT/network/members)
 [![Stargazers](https://img.shields.io/github/stars/ShanghaiMumuPersonalStudio/SCRT.svg?style=for-the-badge)](https://github.com/ShanghaiMumuPersonalStudio/SCRT/stargazers)
 [![Issues](https://img.shields.io/github/issues/ShanghaiMumuPersonalStudio/SCRT.svg?style=for-the-badge)](https://github.com/ShanghaiMumuPersonalStudio/SCRT/issues)
