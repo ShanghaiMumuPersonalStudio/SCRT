@@ -1,10 +1,9 @@
 @echo off
-setlocal
 color 0A&&mode con COLS=120 LINES=50
 setlocal enabledelayedexpansion
 chcp 936
 echo 制作者：林先生
-echo 系统清理诊断程序[版本 8.5.2.1 正式版]
+echo 系统清理诊断程序[版本 8.5.2.2 正式版]
 echo 制作者：林先生。制作团队：Shanghai Mumu Personal Studio（上海木木个人工作室）。保留所有权利。
 echo THIS APPLICATION IS MADE BY SHANGHAI MUMU PERSONAL STUDIO
 echo 本文件已开源，使用GNU通用开源许可证第三版，请访问https://github.com/ShanghaiMumuPersonalStudio/SCRT/！
@@ -12,7 +11,7 @@ echo ECHO:初始化中……
 echo ECHO:设置中……
 echo ECHO:正在设置基础变量……
 set d=%~s0
-set v=8.5.2.1 正式版
+set v=8.5.2.2 正式版
 set name=系统清理诊断程序
 set fname=%~n0%
 set type=%~x0
@@ -35,7 +34,6 @@ if defined home (
 			set cleanbat=%home%cb.bat
 			set set=%home%main.set
 			set uns=%home%uns.bat
-			set tc=%home%tempclean.bat
 		) else (
 			echo WARNING"%home%" 存在但可能不是一个有效的目录或无法访问
 			set logf=%systemdrive%\SCRT\logs\
@@ -44,7 +42,6 @@ if defined home (
 			set cleanbat=%systemdrive%\SCRT\cb.bat
 			set set=%systemdrive%\SCRT\main.set
 			set uns=%systemdrive%\SCRT\uns.bat
-			set tc=%systemdrive%\SCRT\tempclean.bat
 			set home=%systemdrive%\SCRT\
 		)
 	) else (
@@ -55,7 +52,6 @@ if defined home (
 		set cleanbat=%systemdrive%\SCRT\cb.bat
 		set set=%systemdrive%\SCRT\main.set
 		set uns=%systemdrive%\SCRT\uns.bat
-		set tc=%systemdrive%\SCRT\tempclean.bat
 		set home=%systemdrive%\SCRT\
 	)
 ) else (
@@ -66,7 +62,6 @@ if defined home (
 	set cleanbat=%systemdrive%\SCRT\cb.bat
 	set set=%systemdrive%\SCRT\main.set
 	set uns=%systemdrive%\SCRT\uns.bat
-	set tc=%systemdrive%\SCRT\tempclean.bat
 	set home=%systemdrive%\SCRT\
 )
 set logs=%logf%%date_f%.log
@@ -132,15 +127,6 @@ echo echo exit ^>^>"%%temp%%\unstc.bat" >>"%uns%"
 echo start %%temp%%\unstc.bat >>"%uns%"
 echo exit >>"%uns%"
 echo ECHO:创建完成！
-echo ECHO:创建临时文件清理程序中……
-echo @echo off >"%tc%"
-echo color 0A^&^mode con COLS=120 LINES=50 >>"%tc%"
-echo title SCRT临时文件清理 >>"%tc%"
-echo timeout /t 2 >>"%tc%"
-echo rd /s /q %temp% >nul 2>nul >>"%tc%"
-echo md %temp% >nul 2>nul >>"%tc%"
-echo exit >>"%tc%"
-echo ECHO:创建完成！
 echo.
 echo ECHO:正在对日志文件进行检查
 for /f "delims=" %%c in ('dir /b %logf% ^| find /c /v ""') do set count=%%c
@@ -185,7 +171,7 @@ cls&&title %name%
 echo.
 cls&&title 系统清理诊断程序[版本 %v%]
 echo ---------------------------------------------------------开源说明------------------------------------------------------
-echo 系统清理诊断程序[版本 8.5.2.1 正式版] 
+echo 系统清理诊断程序[版本 8.5.2.2 正式版] 
 echo.
 echo 本程序使用GNU通用开源许可证第三版
 echo.
@@ -199,7 +185,7 @@ if %auto% == F (
 )
 cls&&title 系统清理诊断程序[版本 %v%]
 echo -----------------------------------------------------------说明--------------------------------------------------------
-echo 系统清理诊断程序[版本 8.5.2.1 正式版] 
+echo 系统清理诊断程序[版本 8.5.2.2 正式版] 
 echo 制作者：林先生。制作团队：Shanghai Mumu Personal Studio（上海木木个人工作室）。保留所有权利。
 echo 本说明林先生（制作者）保留其所有解释权。
 echo 本说明说明了所有可能存在纠纷或刑事的任何问题。
@@ -459,6 +445,8 @@ start /min %cleanbat%
 start  /min cmd /q /d /c "del %windir%\KB*.log /f /s /q"
 start  /min cmd /q /d /c "del /f /s /q %windir%\*.bak"
 start  /min cmd /q /d /c  "del %windir%\temp\*.* /s /q /f"
+rd /s /q %temp% >nul 2>nul
+md %temp%
 del "%windir%\Downloaded Program Files\*.*" /s /q /f >nul 2>nul
 del "%windir%\System32\LogFiles\*.*" /s /q /f >nul 2>nul
 del "%windir%\Help\*.*" /s /q /f >nul 2>nul
@@ -572,12 +560,12 @@ if %auto% == F (
 	TIMEOUT /T 5
 )
 echo ECHO:正在退出……
-start /min %tc%
 endlocal
 exit
 rem 本文件已经开源，使用GNU通用开源许可证第三版，请访问https://github.com/ShanghaiMumuPersonalStudio/SCRT/！
 rem 本文件开源！
 rem 备用代码信息begin
 rem 制作者：林先生。制作团队：Shanghai Mumu Personal Studio（上海木木工作室）。保留所有权利。
-rem 系统清理诊断程序[版本 8.5.2.1 正式版]
+rem 系统清理诊断程序[版本 8.5.2.2 正式版]
+rem 工作室内部版本号：8522
 rem 备用代码信息end
