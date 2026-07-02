@@ -3,7 +3,7 @@ color 0A&&mode con COLS=120 LINES=50
 setlocal enabledelayedexpansion
 chcp 936
 echo 制作者：林先生
-echo 系统清理诊断程序[版本 8.5.2.2 正式版]
+echo 系统清理诊断程序[版本 8.5.2.3 正式版]
 echo 制作者：林先生。制作团队：Shanghai Mumu Personal Studio（上海木木个人工作室）。保留所有权利。
 echo THIS APPLICATION IS MADE BY SHANGHAI MUMU PERSONAL STUDIO
 echo 本文件已开源，使用GNU通用开源许可证第三版，请访问https://github.com/ShanghaiMumuPersonalStudio/SCRT/！
@@ -11,7 +11,7 @@ echo ECHO:初始化中……
 echo ECHO:设置中……
 echo ECHO:正在设置基础变量……
 set d=%~s0
-set v=8.5.2.2 正式版
+set v=8.5.2.3 正式版
 set name=系统清理诊断程序
 set fname=%~n0%
 set type=%~x0
@@ -171,7 +171,7 @@ cls&&title %name%
 echo.
 cls&&title 系统清理诊断程序[版本 %v%]
 echo ---------------------------------------------------------开源说明------------------------------------------------------
-echo 系统清理诊断程序[版本 8.5.2.2 正式版] 
+echo 系统清理诊断程序[版本 8.5.2.3 正式版] 
 echo.
 echo 本程序使用GNU通用开源许可证第三版
 echo.
@@ -185,7 +185,7 @@ if %auto% == F (
 )
 cls&&title 系统清理诊断程序[版本 %v%]
 echo -----------------------------------------------------------说明--------------------------------------------------------
-echo 系统清理诊断程序[版本 8.5.2.2 正式版] 
+echo 系统清理诊断程序[版本 8.5.2.3 正式版] 
 echo 制作者：林先生。制作团队：Shanghai Mumu Personal Studio（上海木木个人工作室）。保留所有权利。
 echo 本说明林先生（制作者）保留其所有解释权。
 echo 本说明说明了所有可能存在纠纷或刑事的任何问题。
@@ -430,9 +430,6 @@ echo. >>"%logs%"
 echo network-ping end >>"%logs%"
 echo. >>"%logs%"
 %cls%&&echo 正在清理电脑垃圾文件……
-echo 如遇清理卡住，请稍等一会……
-echo.
-echo 后台清理中……
 echo.
 echo 正在启动cleanmgr……
 start /min cleanmgr /sagerun:5 /autoclean
@@ -440,25 +437,28 @@ echo.
 echo 正在自动清理……
 echo @echo off >%cleanbat%
 echo color 0A^&^mode con COLS=120 LINES=50 >>%cleanbat%
+echo title C盘垃圾文件后台清理脚本-SCRT >>%cleanbat%
 echo powershell -Command "Get-ChildItem 'C:\' -Include '*.old','*.tmp','*.temp' -Recurse -ErrorAction SilentlyContinue | Where-Object {$_.PSIsContainer -eq $false} | Remove-Item -Force"^&^exit >>%cleanbat%
 start /min %cleanbat%
-start  /min cmd /q /d /c "del %windir%\KB*.log /f /s /q"
-start  /min cmd /q /d /c "del /f /s /q %windir%\*.bak"
-start  /min cmd /q /d /c  "del %windir%\temp\*.* /s /q /f"
-rd /s /q %temp% >nul 2>nul
+echo [%date% %time%]clean bat started >>"%logs%"
+TIMEOUT /T 1
+del %windir%\KB*.log /f /s /q
+del /f /s /q %windir%\*.bak
+del %windir%\temp\*.* /s /q /f
+rd /s /q %temp%
 md %temp%
-del "%windir%\Downloaded Program Files\*.*" /s /q /f >nul 2>nul
-del "%windir%\System32\LogFiles\*.*" /s /q /f >nul 2>nul
-del "%windir%\Help\*.*" /s /q /f >nul 2>nul
-del %userprofile%\Cookies\*.* /s /q /f >nul 2>nul
-del %userprofile%\Recent\*.* /s /q /f >nul 2>nul
-del %userprofile%\AppData\Local\Microsoft\Windows\INetCache\IE\*.* /s /q /f >nul 2>nul
-del %systemdrive%\ProgramData\Microsoft\Windows\WER\*.* /s /q /f >nul 2>nul
-rd /s /q %systemdrive%\$WINDOWS.~BT >nul 2>nul
-rd /s /q %windir%\SoftwareDistribution\Download\ >nul 2>nul
-md %windir%\SoftwareDistribution\Download\ >nul 2>nul
-rd /s /q %userprofile%\AppData\Local\CrashDumps >nul 2>nul
-md %userprofile%\AppData\Local\CrashDumps >nul 2>nul
+del "%windir%\Downloaded Program Files\*.*" /s /q /f
+del "%windir%\System32\LogFiles\*.*" /s /q /f
+del "%windir%\Help\*.*" /s /q /f
+del %userprofile%\Cookies\*.* /s /q /f
+del %userprofile%\Recent\*.* /s /q /f
+del %userprofile%\AppData\Local\Microsoft\Windows\INetCache\IE\*.* /s /q /f
+del %systemdrive%\ProgramData\Microsoft\Windows\WER\*.* /s /q /f
+rd /s /q %systemdrive%\$WINDOWS.~BT
+rd /s /q %windir%\SoftwareDistribution\Download\
+md %windir%\SoftwareDistribution\Download\
+rd /s /q %userprofile%\AppData\Local\CrashDumps
+md %userprofile%\AppData\Local\CrashDumps
 DISM /Online /Cleanup-Image /StartComponentCleanup
 echo. >>"%logs%"
 echo [%date% %time%]files cleaned >>"%logs%"
@@ -470,7 +470,7 @@ if %auto% == F (
 %cls%&&echo 开始后台修复系统文件！
 echo @echo off >"%SFCD%"
 echo color 0A^&^mode con COLS=120 LINES=50 >>"%SFCD%"
-echo title SFC.bat >>"%SFCD%"
+echo title SCRT全自动系统修复工具 >>"%SFCD%"
 echo SFC /scannow >>"%SFCD%"
 echo dism /online /cleanup-image /restorehealth >>"%SFCD%"
 if %mrts% == T (
@@ -485,7 +485,7 @@ echo exit >>"%SFCD%"
 if %sfcs% == T (
 	start /min %SFCD%
 	echo [!date! !time!]sfc ran >>"%logs%"
-	echo 请等待sfc.bat自动修复完成
+	echo 请等待SCRT全自动系统修复工具自动修复完成
 	if !errorlevel! == 1 (
 		set serr=T
 		echo ERROR:%SFCD%打开失败！
@@ -543,10 +543,9 @@ echo SCRT-runtime:%runtime% >>"%logs%"
 echo ---------------------------------------------------------------------------------------------------- >>"%logs%"
 echo ECHO:写入日志成功！
 %cls%
+echo [!date! !time!]SCRT运行完成
 echo 运行日志在%logs%中
 echo.
-echo 建议不要把软件安装在%systemdrive%\盘中哦！
-echo 如要加快启动速度，请关闭无用自启动项！
 echo mrt扫描速度较慢，如果已经开启了此功能，请耐心等待！
 echo.
 echo 当前运行目录：%d%
@@ -554,7 +553,7 @@ echo 当前文件后缀名：%type%
 echo.
 echo 本次运行时间：%runtime%
 echo.
-echo 已完成！
+echo 程序执行已完成！
 if %auto% == F (
 	echo 5秒后自动退出......
 	TIMEOUT /T 5
@@ -566,6 +565,6 @@ rem 本文件已经开源，使用GNU通用开源许可证第三版，请访问https://github.com/Shangh
 rem 本文件开源！
 rem 备用代码信息begin
 rem 制作者：林先生。制作团队：Shanghai Mumu Personal Studio（上海木木工作室）。保留所有权利。
-rem 系统清理诊断程序[版本 8.5.2.2 正式版]
-rem 工作室内部版本号：8522
+rem 系统清理诊断程序[版本 8.5.2.3 正式版]
+rem 工作室内部版本号：8523
 rem 备用代码信息end
