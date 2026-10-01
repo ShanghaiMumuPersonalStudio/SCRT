@@ -3,7 +3,7 @@ color 0A&&mode con COLS=120 LINES=50
 setlocal enabledelayedexpansion
 chcp 936
 echo 制作者：林先生
-echo 系统清理诊断程序[版本 8.5.2.3 正式版]
+echo 系统清理诊断程序[版本 8.5.2.4 正式版]
 echo 制作者：林先生。制作团队：Shanghai Mumu Personal Studio（上海木木个人工作室）。保留所有权利。
 echo THIS APPLICATION IS MADE BY SHANGHAI MUMU PERSONAL STUDIO
 echo 本文件已开源，使用GNU通用开源许可证第三版，请访问https://github.com/ShanghaiMumuPersonalStudio/SCRT/！
@@ -11,15 +11,15 @@ echo ECHO:初始化中……
 echo ECHO:设置中……
 echo ECHO:正在设置基础变量……
 set d=%~s0
-set v=8.5.2.3 正式版
+set v=8.5.2.4 正式版
 set name=系统清理诊断程序
 set fname=%~n0%
 set type=%~x0
 set date_f=%date:/=%_%time::=%
 set date_f=%date_f:.=%
 set SCRT="%cd%%fname%%type%"
-for /f "tokens=2* delims=    " %%a in ('reg query "HKLM\SOFTWARE\SCRT" /v "home" 2^>nul') do (
-	set home=%%b
+for /f "tokens=2,* delims=	 " %%a in ('reg query "HKLM\SOFTWARE\SCRT" /v "home" 2^>nul') do (
+    set "home=%%b"
 )
 if defined home (
 	echo ECHO:已找到SCRT\home注册表项，正在检查有效性！
@@ -122,7 +122,7 @@ echo schtasks /delete /tn "SCRT" /f >>"%uns%"
 echo echo @echo off ^>"%%temp%%\unstc.bat" >>"%uns%"
 echo echo cd %systemdrive%\Windows ^>^>"%%temp%%\unstc.bat" >>"%uns%"
 echo echo rd /s /q "%home%" ^>^>"%%temp%%\unstc.bat" >>"%uns%"
-echo reg delete "%home%" /f >>"%uns%"
+echo reg delete HKLM\SOFTWARE\SCRT\ >>"%uns%"
 echo echo exit ^>^>"%%temp%%\unstc.bat" >>"%uns%"
 echo start %%temp%%\unstc.bat >>"%uns%"
 echo exit >>"%uns%"
@@ -171,7 +171,7 @@ cls&&title %name%
 echo.
 cls&&title 系统清理诊断程序[版本 %v%]
 echo ---------------------------------------------------------开源说明------------------------------------------------------
-echo 系统清理诊断程序[版本 8.5.2.3 正式版] 
+echo 系统清理诊断程序[版本 8.5.2.4 正式版] 
 echo.
 echo 本程序使用GNU通用开源许可证第三版
 echo.
@@ -185,7 +185,7 @@ if %auto% == F (
 )
 cls&&title 系统清理诊断程序[版本 %v%]
 echo -----------------------------------------------------------说明--------------------------------------------------------
-echo 系统清理诊断程序[版本 8.5.2.3 正式版] 
+echo 系统清理诊断程序[版本 8.5.2.4 正式版] 
 echo 制作者：林先生。制作团队：Shanghai Mumu Personal Studio（上海木木个人工作室）。保留所有权利。
 echo 本说明林先生（制作者）保留其所有解释权。
 echo 本说明说明了所有可能存在纠纷或刑事的任何问题。
@@ -210,174 +210,196 @@ echo 开始运行！
 echo 提示：如需修改任何设置项请前往%uns%进行重置操作
 echo.
 if not exist "%set%" (
-	set /p ip=您想要改变SCRT的运行文件存放目录吗？（y/n）:
-	if "!ip!"=="y" (
-		:input_loop
-		echo 请输入一个有效的目录路径：
-		set "dir_path="
-		set /p "dir_path=路径(将会被设置为：您输入的路径\): "
-		if "!dir_path!"=="" (
-    			echo 错误：路径不能为空！
-    			TIMEOUT /T 2
-    			goto input_loop
-		)
-		echo 正在验证目录路径...
-
-		:check_loop
-		if exist "!dir_path!\" (
-    			pushd "!dir_path!\" 2>nul
-    			if %errorLevel% equ 0 (
-        			popd
-        			echo ECHO:目录 "!dir_path!\" 存在且有效！
-				set home=!dir_path!\
-				reg add "HKLM\SOFTWARE\SCRT" /f
-				reg add "HKLM\SOFTWARE\SCRT" /v "home" /t REG_SZ /d !dir_path!\ /f
-        			goto end_loop
-			) else (
-				echo WARNING"!dir_path!" 存在但可能不是一个有效的目录或无法访问
-			)
-		) else (
-			echo ERROR:目录 "!dir_path!" 不存在
-		)
-		set "retry="
-		echo.
-		echo 请选择：
-		echo [1] 重试（输入新路径）
-		echo [2] 继续等待（目录可能正在创建中）
-		echo [3] 退出
-		set /p "retry=请选择 (1/2/3): "
-		if /i "!retry!"=="1" goto input_loop
-		if /i "!retry!"=="3" goto end_loop
-		echo 等待 5 秒后重新检查...
-		TIMEOUT /T 5
-		goto check_loop
-
-		:end_loop
-		echo 本次更改将在下次启动中生效，如果愿意，请自行删除%systemdrive%\SCRT
-		echo 目录设置已完成！
-		echo [%date% %time%]scrt_home: >>"%logs%"
-	) else if "!ip!"=="n" (
-		echo 跳过设置过程成功！
-		echo [%date% %time%]scrt_home:standard >>"%logs%"
-	 ) else (
-		echo 无效输入，请输入y或 n。
-		echo [%date% %time%]scrt_home:ERROR >>"%logs%"
-	)
-	echo [%date% %time%]home_dir set >>"%logs%"
-	echo SCRT-main.set: >"%set%"
-	echo.
-	set /p ip=您想要设置清理目录吗（将配置在配置5）？（y/n）:
-	if "!ip!"=="y" (
-		echo 请您在弹出的新窗口中选中要清理的所有文件！
-		cleanmgr /sageset:5
-		echo 设置成功！
-		echo cleanmgrset:T >> "%set%"
-		echo [%date% %time%]cleanmgr:T >>"%logs%"
-	) else if "!ip!"=="n" (
-		echo 跳过设置过程成功！
-		echo cleanmgrset:F >> "%set%"
-		echo [%date% %time%]cleanmgr:F >>"%logs%"
-	 ) else (
-		echo 无效输入，请输入y或 n。
-		echo [%date% %time%]cleanmgr:ERROR >>"%logs%"
-	)
-	echo [%date% %time%]cleanmgr set >>"%logs%"
-	echo.
-	echo 静默运行说明：当开启静默模式后，所有延时代码将不会运行，并禁用本程序的ping测试
-	echo                           适用于需要自启动或仅需要功能不需要UI的人
-	set /p ip=您想让SCRT静默运行吗？（y/n）:
-	if "!ip!"=="y" (
-		set auto=T
-		echo 设置成功！
-		echo automode:T >> "%set%"
-		echo [%date% %time%]auto mode:T >>"%logs%"
-	) else if "!ip!"=="n" (
-		echo 跳过设置过程成功！
-		echo automode:F >> "%set%"
-		echo [%date% %time%]auto mode:F >>"%logs%"
-	 ) else (
-		echo 无效输入，请输入y或 n。
-		echo [%date% %time%]auto mode:ERROR >>"%logs%"
-	)
-	echo [%date% %time%]auto mode set >>"%logs%"
-	echo.
-	set /p ip=您想要让SCRT自启动运行吗？（y/n）:
-	if "!ip!"=="y" (
-		echo ECHO:正在启用自启动……
-		if !auto!==F (
-			Schtasks /Create /SC ONLOGON /TN "SCRT" /TR "%SCRT%" /F
-		) else (
-			echo start /min "" %SCRT% >"%subat%"
-			echo exit >>"%subat%"
-			Schtasks /Create /SC ONLOGON /TN "SCRT" /TR "%subat%" /F
-		)
-		echo ECHO:启用自启动完成！
-		if !errorlevel! == 1 (
-			set suserr=T
-			echo ERROR:错误！
-			echo [!date! !time!]startup set error >>"%logs%"
-		) 
-		set su=T
-		echo 打开成功！
-		echo startup:T >> "%set%"
-		echo [!date! !time!]startup:T >>"%logs%"
-	) else if "!ip!"=="n" (
-		set su=F
-		echo 关闭成功！
-		echo startup:F >> "%set%"
-		echo [!date! !time!]startup:F >>"%logs%"
-	 ) else (
-		echo 无效输入，请输入y或 n。
-		echo [!date! !time!]startup:ERROR >>"%logs%"
-	)
-	echo [!date! !time!]startup set >>"%logs%"
-	echo.
-	echo 恢复模式说明:每次运行SCRT时会自动尝试修复被恶意软件修改的
-	echo                系统文件，特别是中病毒或特殊情况导致文件损坏时！
-	echo 警告:此功能在部分性能不佳的电脑上会导致卡顿，请谨慎开启！
-	set /p ip=您想要让SCRT以增强模式运行吗？（y/n）:
-	if "!ip!"=="y" (
-		set sfcs=T
-		echo 打开成功！
-		echo sfcset:T >> "%set%"
-		echo [!date! !time!]sfc:T >>"%logs%"
-		echo.
-		echo 增强模式说明:通过mrt删除您电脑上的可疑文件，
-		echo               来保护您的电脑！如果恢复模式未开
-		echo               启，则此项无效！
-		echo 警告:此功能在部分性能不佳的电脑上会导致卡顿，请谨慎开启！
-		echo       如电脑未安装mrt更新包，请勿开启此扩展项！
-		echo 提示:mrt扫描速度较慢，默认全盘扫描并自动删除危险
-		echo       程序，请耐心等待（无需等待其扫描完成，不会
-		echo       影响电脑的正常使用）！
-		set /p ip=您想要让SCRT以增强模式运行吗？（y/n）:
-		if "!ip!"=="y" (
-			set mrts=T
-			echo 打开成功！
-			echo mrtset:T >> "%set%"
-			echo [!date! !time!]mrt:T >>"%logs%"
-		) else if "!ip!"=="n" (
-			set mrts=F
-			echo 关闭成功！
+	set /p ip=您想要设置SCRT吗（n为跳过）？（y/n）:
+	if "!ip!"=="n" (
+			echo SCRT-main.set: >"%set%"
+			echo cleanmgrset:F >> "%set%"
+			echo automode:F >> "%set%"
+			echo startup:F >> "%set%"
+			echo sfcset:F >> "%set%"
 			echo mrtset:F >> "%set%"
-			echo [!date! !time!]mrt:F >>"%logs%"
+			set auto=F
+			set su=F
+			set sfcs=F
+			set mrts=F
+			echo 已跳过设置过程
+			echo SCRT运行文件存放目录：默认（%systemdrive%:\SCRT）
+			echo 其余选项：全部关闭
+	) else (
+		echo 对于SCRT运行文件存放目录：应当设置为一个专用空目录，否则重置时将会造成数据丢失
+		set /p ip=您想要改变SCRT的运行文件存放目录吗？（y/n）:
+		if "!ip!"=="y" (
+			:input_loop
+			echo 请输入一个有效的目录路径：
+			set "dir_path="
+			set /p "dir_path=路径(将会被设置为：您输入的路径\SCRT\): "
+			if "!dir_path!"=="" (
+    				echo 错误：路径不能为空！
+    				TIMEOUT /T 2
+    				goto input_loop
+			)
+			echo 正在验证目录路径...
+
+			:check_loop
+			if exist "!dir_path!\" (
+    				pushd "!dir_path!\" 2>nul
+    				if %errorLevel% equ 0 (
+        				popd
+        				echo ECHO:目录 "!dir_path!\" 存在且有效！
+					rd /s /q "%home%"
+					set home="!dir_path!\SCRT\"
+					reg add "HKLM\SOFTWARE\SCRT" /f
+					reg add "HKLM\SOFTWARE\SCRT" /v "home" /t REG_SZ /d !dir_path!\SCRT\ /f
+					echo 请重新启动SCRT！
+					pause
+					exit
+
+        				goto end_loop
+				) else (
+					echo WARNING"!dir_path!\" 存在但可能不是一个有效的目录或无法访问
+				)
+			) else (
+				echo ERROR:目录 "!dir_path!\" 不存在
+			)
+			set "retry="
+			echo.
+			echo 请选择：
+			echo [1] 重试（输入新路径）
+			echo [2] 继续等待（目录可能正在创建中）
+			echo [3] 退出
+			set /p "retry=请选择 (1/2/3): "
+			if /i "!retry!"=="1" goto input_loop
+			if /i "!retry!"=="3" goto end_loop
+			echo 等待 5 秒后重新检查...
+			TIMEOUT /T 5
+			goto check_loop
+
+			:end_loop
+			echo 目录设置已完成！
+			echo [%date% %time%]scrt_home: >>"%logs%"
+		) else if "!ip!"=="n" (
+			echo 跳过设置过程成功！
+			echo [%date% %time%]scrt_home:standard >>"%logs%"
 		) else (
 			echo 无效输入，请输入y或 n。
-			echo [!date! !time!]mrt:ERROR >>"%logs%"
+			echo [%date% %time%]scrt_home:ERROR >>"%logs%"
 		)
-	) else if "!ip!"=="n" (
-		set sfcs=F
-		set mrts=F
-		echo 关闭成功！
-		echo sfcset:F >> "%set%"
-		echo mrtset:F >> "%set%"
-		echo [!date! !time!]sfc:F >>"%logs%"
-		echo [!date! !time!]mrt:F >>"%logs%"
-	 ) else (
-		echo 无效输入，请输入y或 n。
-		echo [!date! !time!]sfc:ERROR >>"%logs%"
+		echo [%date% %time%]home_dir set >>"%logs%"
+		echo SCRT-main.set: >"%set%"
+		echo.
+		set /p ip=您想要设置清理目录吗（将配置在配置5）？（y/n）:
+		if "!ip!"=="y" (
+			echo 请您在弹出的新窗口中选中要清理的所有文件！
+			cleanmgr /sageset:5
+			echo 设置成功！
+			echo cleanmgrset:T >> "%set%"
+			echo [%date% %time%]cleanmgr:T >>"%logs%"
+		) else if "!ip!"=="n" (
+			echo 跳过设置过程成功！
+			echo cleanmgrset:F >> "%set%"
+			echo [%date% %time%]cleanmgr:F >>"%logs%"
+		) else (
+			echo 无效输入，请输入y或 n。
+			echo [%date% %time%]cleanmgr:ERROR >>"%logs%"
+		)
+		echo [%date% %time%]cleanmgr set >>"%logs%"
+		echo.
+		echo 静默运行说明：当开启静默模式后，所有延时代码将不会运行，并禁用本程序的ping测试
+		echo                           适用于需要自启动或仅需要功能不需要UI的人
+		set /p ip=您想让SCRT静默运行吗？（y/n）:
+		if "!ip!"=="y" (
+			set auto=T
+			echo 设置成功！
+			echo automode:T >> "%set%"
+			echo [%date% %time%]auto mode:T >>"%logs%"
+		) else if "!ip!"=="n" (
+			echo 跳过设置过程成功！
+			echo automode:F >> "%set%"
+			echo [%date% %time%]auto mode:F >>"%logs%"
+		) else (
+			echo 无效输入，请输入y或 n。
+			echo [%date% %time%]auto mode:ERROR >>"%logs%"
+		)
+		echo [%date% %time%]auto mode set >>"%logs%"
+		echo.
+		set /p ip=您想要让SCRT自启动运行吗？（y/n）:
+		if "!ip!"=="y" (
+			echo ECHO:正在启用自启动……
+			if !auto!==F (
+				Schtasks /Create /SC ONLOGON /TN "SCRT" /TR "%SCRT%" /F
+			) else (
+				echo start /min "" %SCRT% >"%subat%"
+				echo exit >>"%subat%"
+				Schtasks /Create /SC ONLOGON /TN "SCRT" /TR "%subat%" /F
+			)
+			echo ECHO:启用自启动完成！
+			if !errorlevel! == 1 (
+				set suserr=T
+				echo ERROR:错误！
+				echo [!date! !time!]startup set error >>"%logs%"
+			) 
+			set su=T
+			echo 打开成功！
+			echo startup:T >> "%set%"
+			echo [!date! !time!]startup:T >>"%logs%"
+		) else if "!ip!"=="n" (
+			set su=F
+			echo 关闭成功！
+			echo startup:F >> "%set%"
+			echo [!date! !time!]startup:F >>"%logs%"
+	 	) else (
+			echo 无效输入，请输入y或 n。
+			echo [!date! !time!]startup:ERROR >>"%logs%"
+		)
+		echo [!date! !time!]startup set >>"%logs%"
+		echo.
+		echo 恢复模式说明:每次运行SCRT时会自动尝试修复被恶意软件修改的
+		echo                系统文件，特别是中病毒或特殊情况导致文件损坏时！
+		echo 警告:此功能在部分性能不佳的电脑上会导致卡顿，请谨慎开启！
+		set /p ip=您想要让SCRT以增强模式运行吗？（y/n）:
+		if "!ip!"=="y" (
+			set sfcs=T
+			echo 打开成功！
+			echo sfcset:T >> "%set%"
+			echo [!date! !time!]sfc:T >>"%logs%"
+			echo.
+			echo 增强模式说明:通过mrt删除您电脑上的可疑文件，
+			echo               来保护您的电脑！如果恢复模式未开
+			echo               启，则此项无效！
+			echo 警告:此功能在部分性能不佳的电脑上会导致卡顿，请谨慎开启！
+			echo       如电脑未安装mrt更新包，请勿开启此扩展项！
+			echo 提示:mrt扫描速度较慢，默认全盘扫描并自动删除危险
+			echo       程序，请耐心等待（无需等待其扫描完成，不会
+			echo       影响电脑的正常使用）！
+			set /p ip=您想要让SCRT以增强模式运行吗？（y/n）:
+			if "!ip!"=="y" (
+				set mrts=T
+				echo 打开成功！
+				echo mrtset:T >> "%set%"
+				echo [!date! !time!]mrt:T >>"%logs%"
+			) else if "!ip!"=="n" (
+				set mrts=F
+				echo 关闭成功！
+				echo mrtset:F >> "%set%"
+				echo [!date! !time!]mrt:F >>"%logs%"
+			) else (
+				echo 无效输入，请输入y或 n。
+				echo [!date! !time!]mrt:ERROR >>"%logs%"
+			)
+		) else if "!ip!"=="n" (
+			set sfcs=F
+			set mrts=F
+			echo 关闭成功！
+			echo sfcset:F >> "%set%"
+			echo mrtset:F >> "%set%"
+			echo [!date! !time!]sfc:F >>"%logs%"
+			echo [!date! !time!]mrt:F >>"%logs%"
+		 ) else (
+			echo 无效输入，请输入y或 n。
+			echo [!date! !time!]sfc:ERROR >>"%logs%"
+		)
+		echo [!date! !time!]sfc^&mrt set >>"%logs%"
 	)
-	echo [!date! !time!]sfc^&mrt set >>"%logs%"
 	TIMEOUT /T 3
 ) else (
 	echo 自动模式已设置
@@ -441,12 +463,11 @@ echo title C盘垃圾文件后台清理脚本-SCRT >>%cleanbat%
 echo powershell -Command "Get-ChildItem 'C:\' -Include '*.old','*.tmp','*.temp' -Recurse -ErrorAction SilentlyContinue | Where-Object {$_.PSIsContainer -eq $false} | Remove-Item -Force"^&^exit >>%cleanbat%
 start /min %cleanbat%
 echo [%date% %time%]clean bat started >>"%logs%"
-TIMEOUT /T 1
+rd /s /q %temp%
+md %temp%
 del %windir%\KB*.log /f /s /q
 del /f /s /q %windir%\*.bak
 del %windir%\temp\*.* /s /q /f
-rd /s /q %temp%
-md %temp%
 del "%windir%\Downloaded Program Files\*.*" /s /q /f
 del "%windir%\System32\LogFiles\*.*" /s /q /f
 del "%windir%\Help\*.*" /s /q /f
@@ -565,6 +586,6 @@ rem 本文件已经开源，使用GNU通用开源许可证第三版，请访问https://github.com/Shangh
 rem 本文件开源！
 rem 备用代码信息begin
 rem 制作者：林先生。制作团队：Shanghai Mumu Personal Studio（上海木木工作室）。保留所有权利。
-rem 系统清理诊断程序[版本 8.5.2.3 正式版]
-rem 工作室内部版本号：8523
+rem 系统清理诊断程序[版本 8.5.2.4 正式版]
+rem 工作室内部版本号：8524
 rem 备用代码信息end
